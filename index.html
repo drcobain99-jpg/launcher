@@ -67,6 +67,8 @@ header{position:relative;margin-bottom:10px}
 .sub{font-size:14px;color:var(--muted);margin-top:-6px}
 .badge{position:absolute;top:0;right:calc(50% - 96px);width:40px;height:40px;border-radius:50%;background:var(--accent);color:var(--accent-ink);
   display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 2px 6px var(--shadow)}
+.xbtn{position:absolute;top:0;left:calc(50% - 96px);min-width:40px;height:40px;padding:0 10px;border-radius:20px;background:#D6453D;color:#fff;display:flex;align-items:center;justify-content:center;font:700 22px/1 var(--font);box-shadow:0 2px 6px var(--shadow);cursor:pointer;z-index:2}
+.xbtn.arm{font-size:15px}
 .add .icon{background:transparent;border:2px dashed var(--line);box-shadow:none;color:var(--muted);font-weight:400;font-size:66px}
 .add .name{color:var(--muted)}
 .empty{border:2px dashed var(--line);border-radius:18px;padding:28px 20px;text-align:center;color:var(--muted);margin-bottom:28px}
@@ -75,8 +77,13 @@ header{position:relative;margin-bottom:10px}
 .btn.small{min-height:40px;font-size:14px;padding:0 14px;color:var(--muted)}
 /* editor */
 .overlay{position:fixed;inset:0;background:rgba(10,14,20,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
-.panel{background:var(--surface);color:var(--ink);width:100%;max-width:540px;max-height:calc(100vh - 32px);overflow:auto;border-radius:22px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
-.panel h2{margin:0 0 18px;font-size:20px}
+.panel{background:var(--surface);color:var(--ink);width:100%;max-width:540px;max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);display:flex;flex-direction:column;overflow:hidden;border-radius:22px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.panel h2{margin:0;font-size:20px}
+.phead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px 12px 24px;border-bottom:1px solid var(--line)}
+.pbody{flex:1;min-height:0;overflow:auto;-webkit-overflow-scrolling:touch;padding:16px 24px 20px}
+.pfoot{margin:0;padding:12px 16px;border-top:1px solid var(--line)}
+.pfoot .btn{padding:0 14px}
+@media (max-height:620px){.prev .icon{--s:80px;width:80px;height:80px;border-radius:19px;font-size:42px}.prev{margin-bottom:8px}}
 .prev{display:flex;justify-content:center;margin-bottom:18px}
 .prev .icon{--s:120px;width:120px;height:120px;border-radius:29px;font-size:62px}
 label.l{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 6px}
@@ -86,7 +93,7 @@ input.f:focus{outline:2px solid var(--accent);outline-offset:1px}
 .sw{all:unset;box-sizing:border-box;width:40px;height:40px;border-radius:50%;cursor:pointer;border:3px solid var(--surface);box-shadow:0 0 0 1px var(--line)}
 .sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent)}
 input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:2px;cursor:pointer}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px;align-items:center}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .actions .grow{flex:1}
 .err{color:var(--danger);font-size:14px;min-height:20px;margin-top:10px}
 @media (prefers-reduced-motion:reduce){.icon{transition:none}}
@@ -111,7 +118,8 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
 
 <div class="overlay" id="overlay" hidden>
   <div class="panel" role="dialog" aria-modal="true" aria-labelledby="pTitle">
-    <h2 id="pTitle">북마크 편집</h2>
+    <div class="phead"><h2 id="pTitle">북마크 편집</h2><button class="btn primary" id="saveTop" type="button">저장</button></div>
+    <div class="pbody">
     <div class="prev"><span class="icon" id="prevIcon"></span></div>
     <label class="l" for="fName">이름</label>
     <input class="f" id="fName" type="text" maxlength="30" autocomplete="off">
@@ -128,7 +136,8 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
       <input type="file" id="fileImg" accept="image/*" hidden>
     </div>
     <div class="err" id="err" role="alert"></div>
-    <div class="actions">
+    </div>
+    <div class="actions pfoot">
       <button class="btn primary" id="saveBtn" type="button">저장</button>
       <button class="btn" id="cancelBtn" type="button">취소</button>
       <span class="grow"></span>
@@ -204,7 +213,17 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
     var nm=document.createElement("span");nm.className="name";nm.textContent=t.name||"이름 없음";
     el.appendChild(ic);el.appendChild(nm);
     if(!url&&!editMode){var s=document.createElement("span");s.className="sub";s.textContent="주소를 입력하세요";el.appendChild(s)}
-    if(editMode){var b=document.createElement("span");b.className="badge";b.setAttribute("aria-hidden","true");b.textContent="✎";el.appendChild(b)}
+    if(editMode){
+      var b=document.createElement("span");b.className="badge";b.setAttribute("aria-hidden","true");b.textContent="✎";el.appendChild(b);
+      var x=document.createElement("span");x.className="xbtn";x.setAttribute("role","button");x.setAttribute("aria-label",(t.name||"북마크")+" 삭제");x.textContent="×";
+      x.addEventListener("click",function(e){
+        e.preventDefault();e.stopPropagation();
+        if(x.dataset.arm){removeTile(t.id);return}
+        x.dataset.arm="1";x.classList.add("arm");x.textContent="삭제";
+        setTimeout(function(){if(x.isConnected){delete x.dataset.arm;x.classList.remove("arm");x.textContent="×"}},3000);
+      });
+      el.appendChild(x);
+    }
     return el;
   }
   function addEl(){
@@ -220,7 +239,7 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
     sorted().forEach(function(t){g.appendChild(tileEl(t))});
     g.appendChild(addEl());
     $("#empty").hidden=st.tiles.length>0;
-    $("#hint").textContent=editMode?"아이콘을 누르면 이름·주소·모양을 바꾸거나 순서를 옮길 수 있어요.":"아이콘을 누르면 해당 사이트가 열립니다. 위의 이름을 눌러 바꿀 수 있어요.";
+    $("#hint").textContent=editMode?"아이콘을 누르면 이름·주소·모양을 바꿀 수 있어요. 왼쪽 위 ×를 두 번 누르면 삭제됩니다.":"아이콘을 누르면 해당 사이트가 열립니다. 위의 이름을 눌러 바꿀 수 있어요.";
     var eb=$("#editBtn");eb.textContent=editMode?"완료":"편집";eb.setAttribute("aria-pressed",editMode?"true":"false");
     var ti=$("#title");if(document.activeElement!==ti)ti.value=st.title;
     applyBoard();
@@ -312,14 +331,13 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
     }catch(e){$("#err").textContent="저장하지 못했습니다. 잠시 후 다시 시도하세요."}
     busy=false;$("#saveBtn").disabled=false;
   }
-  async function onDelete(){
+  function removeTile(id){
+    st.tiles=st.tiles.filter(function(x){return x.id!==id});
+    lsSave();render();
+  }
+  function onDelete(){
     if(!delArmed){delArmed=true;refreshEditor();return}
-    var id=draft.id;
-    try{
-      st.tiles=st.tiles.filter(function(x){return x.id!==id});
-      lsSave();
-      closeEditor();render();
-    }catch(e){$("#err").textContent="삭제하지 못했습니다. 잠시 후 다시 시도하세요."}
+    var id=draft.id;closeEditor();removeTile(id);
   }
   async function onMove(dir){
     var arr=sorted(),i=arr.findIndex(function(x){return x.id===draft.id}),j=i+dir;
@@ -361,7 +379,7 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
   $("#fileImg").addEventListener("change",function(e){onFile(e.target.files[0]);e.target.value=""});
   $("#fName").addEventListener("input",function(){draft.name=$("#fName").value;if(!$("#fGlyph").value.trim()){draft.glyph="";}refreshEditor()});
   $("#fGlyph").addEventListener("input",function(){draft.glyph=$("#fGlyph").value.trim();refreshEditor()});
-  $("#overlay").addEventListener("click",function(e){if(e.target.id==="overlay")closeEditor()});
+  $("#saveTop").addEventListener("click",onSave);
   document.addEventListener("keydown",function(e){if(e.key==="Escape"&&draft)closeEditor()});
 
   /* ---------- 백업 ---------- */
@@ -391,6 +409,8 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
   $("#expBtn").addEventListener("click",exportBackup);
   $("#impBtn").addEventListener("click",function(){$("#impFile").click()});
   $("#impFile").addEventListener("change",function(e){importBackup(e.target.files[0]);e.target.value=""});
+
+  window.addEventListener("error",function(e){setStatus("오류: "+(e.message||"알 수 없는 오류"))});
 
   /* ---------- 시작 ---------- */
   function init(){

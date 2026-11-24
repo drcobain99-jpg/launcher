@@ -18,17 +18,17 @@ html{color-scheme:light}
 /* Layout: 제목 한 줄 + 아이콘 그리드 (iPad 홈 화면과 같은 정사각 타일). 편집은 오버레이 패널에서. */
 :root{
   --bg:#EEF1F5; --surface:#FFFFFF; --ink:#18202C; --muted:#66707F; --line:#D5DBE4;
-  --accent:#2459D6; --accent-ink:#FFFFFF; --danger:#C7372F; --shadow:rgba(24,32,44,.14);
+  --panel:#D3E0F5; --accent:#2459D6; --accent-ink:#FFFFFF; --danger:#C7372F; --shadow:rgba(24,32,44,.14);
   --font:"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){
   :root:not([data-theme="light"]){
     --bg:#11151B; --surface:#1A2029; --ink:#EAEEF4; --muted:#98A2B1; --line:#2E3745;
-    --accent:#7FA3FF; --accent-ink:#0B1220; --danger:#FF7A70; --shadow:rgba(0,0,0,.5); color-scheme:dark;
+    --panel:#1F2735; --accent:#7FA3FF; --accent-ink:#0B1220; --danger:#FF7A70; --shadow:rgba(0,0,0,.5); color-scheme:dark;
   }
 }
 :root[data-theme="dark"]{
-  --bg:#11151B; --surface:#1A2029; --ink:#EAEEF4; --muted:#98A2B1; --line:#2E3745;
+  --panel:#1F2735; --bg:#11151B; --surface:#1A2029; --ink:#EAEEF4; --muted:#98A2B1; --line:#2E3745;
   --accent:#7FA3FF; --accent-ink:#0B1220; --danger:#FF7A70; --shadow:rgba(0,0,0,.5); color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -47,12 +47,21 @@ header{position:relative;margin-bottom:10px}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
 .btn.danger{color:var(--danger)}
 .btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:700}
-.hint{color:var(--muted);font-size:14px;min-height:21px;margin:0 0 32px;text-align:center}
+.board{background:var(--panel);border-radius:30px;padding:26px 24px 40px;margin-top:6px;transition:background .2s}
+.hint{color:var(--bmuted,var(--muted));font-size:14px;min-height:21px;margin:0 0 30px;text-align:center}
+.board .name{color:var(--bfg,var(--ink))}
+.board .sub,.board .add .name{color:var(--bmuted,var(--muted))}
+.board .add .icon{border-color:var(--bmuted,var(--line));color:var(--bmuted,var(--muted))}
+.bgrow{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center;margin:-8px 0 30px;color:var(--bfg,var(--ink));font-size:14px;font-weight:500}
+.bgrow .sw{width:36px;height:36px;border-color:transparent}
+.bgrow .sw[aria-pressed="true"]{box-shadow:0 0 0 3px var(--accent);border-color:var(--surface)}
+.bgrow .btn{min-height:36px;font-size:13px;padding:0 12px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,196px);justify-content:center;gap:40px 20px}
 .tile{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;position:relative;
   -webkit-tap-highlight-color:transparent;text-align:center;padding:4px 0}
-.icon{width:156px;height:156px;border-radius:37px;display:flex;align-items:center;justify-content:center;
+.icon{--s:156px;width:156px;height:156px;border-radius:37px;display:flex;align-items:center;justify-content:center;
   font:700 81px/1 var(--font);background-size:cover;background-position:center;box-shadow:0 6px 16px var(--shadow);transition:transform .12s}
+.g{display:block;max-width:88%;text-align:center;line-height:1.12;overflow-wrap:anywhere}
 .tile:active .icon{transform:scale(.94)}
 .name{font-weight:500;font-size:18px;max-width:192px;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .sub{font-size:14px;color:var(--muted);margin-top:-6px}
@@ -69,7 +78,7 @@ header{position:relative;margin-bottom:10px}
 .panel{background:var(--surface);color:var(--ink);width:100%;max-width:540px;max-height:calc(100vh - 32px);overflow:auto;border-radius:22px;padding:24px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
 .panel h2{margin:0 0 18px;font-size:20px}
 .prev{display:flex;justify-content:center;margin-bottom:18px}
-.prev .icon{width:120px;height:120px;border-radius:29px;font-size:62px}
+.prev .icon{--s:120px;width:120px;height:120px;border-radius:29px;font-size:62px}
 label.l{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:14px 0 6px}
 input.f{width:100%;min-height:46px;font:400 16px var(--font);padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 input.f:focus{outline:2px solid var(--accent);outline-offset:1px}
@@ -90,9 +99,12 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
     <input id="title" class="title" type="text" maxlength="40" placeholder="이름을 입력하세요" aria-label="전체 이름" autocomplete="off">
     <button id="editBtn" class="btn" type="button" aria-pressed="false">편집</button>
   </header>
+  <section class="board" id="board">
   <p class="hint" id="hint">아이콘을 누르면 해당 사이트가 열립니다. 위의 이름을 눌러 바꿀 수 있어요.</p>
   <div class="empty" id="empty" hidden>아직 북마크가 없습니다. 아래 “추가”를 눌러 첫 북마크를 만들어 보세요.</div>
+  <div class="bgrow" id="bgrow" hidden><span>배경색</span><span class="row" id="bgsw" style="gap:8px"></span><input type="color" id="bgColor" aria-label="배경색 직접 고르기"><button class="btn" id="bgReset" type="button">기본</button></div>
   <div class="grid" id="grid"></div>
+  </section>
   <div class="status" id="status" role="status"></div>
   <div class="tools"><button class="btn small" id="expBtn" type="button">백업 저장</button><button class="btn small" id="impBtn" type="button">백업 불러오기</button><input type="file" id="impFile" accept="application/json,.json" hidden></div>
 </div>
@@ -105,8 +117,8 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
     <input class="f" id="fName" type="text" maxlength="30" autocomplete="off">
     <label class="l" for="fUrl">주소</label>
     <input class="f" id="fUrl" type="url" inputmode="url" placeholder="https://" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false">
-    <label class="l" for="fGlyph">아이콘 글자 (1~2자)</label>
-    <input class="f" id="fGlyph" type="text" maxlength="2" autocomplete="off">
+    <label class="l" for="fGlyph">아이콘 글자</label>
+    <input class="f" id="fGlyph" type="text" autocomplete="off">
     <label class="l">아이콘 색</label>
     <div class="row" id="swatches"></div>
     <label class="l">또는 내 사진으로</label>
@@ -132,7 +144,8 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
   var $=function(s){return document.querySelector(s)};
   var COLORS=["#1C1C1E","#8E8E93","#2459D6","#0F9D8A","#E5484D","#F59E0B","#8B5CF6","#EC6AA0"];
   var LS="bookmark-launcher-v1";
-  var st={title:"",tiles:[]};
+  var st={title:"",tiles:[],areaBg:""};
+  var AREA=["#D3E0F5","#DDEFE3","#F5DEDE","#E6DEF5","#FFFFFF","#2B3345","#16191F","#0F3D3E","#1E3A8A"];
   var db=null, mode="local", editMode=false, draft=null, delArmed=false, busy=false;
 
   var saveFail=false;
@@ -145,8 +158,8 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
   function lsLoad(){
     var raw=null;
     try{raw=localStorage.getItem(LS)}catch(e){saveFail=true}
-    if(raw){try{var j=JSON.parse(raw);if(j&&Array.isArray(j.tiles)){st={title:String(j.title||""),tiles:j.tiles};return}}catch(e){}}
-    st={title:"내 북마크",tiles:JSON.parse(JSON.stringify(DEFAULTS))};
+    if(raw){try{var j=JSON.parse(raw);if(j&&Array.isArray(j.tiles)){st={title:String(j.title||""),tiles:j.tiles,areaBg:/^#[0-9a-fA-F]{6}$/.test(j.areaBg||"")?j.areaBg:""};return}}catch(e){}}
+    st={title:"내 북마크",tiles:JSON.parse(JSON.stringify(DEFAULTS)),areaBg:""};
   }
   function lsSave(){
     try{localStorage.setItem(LS,JSON.stringify(st));saveFail=false;setStatus("이 기기에 저장됨")}
@@ -172,7 +185,12 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
     if(okImg(t.img)){ el.style.backgroundImage='url("'+t.img+'")'; el.style.backgroundColor=bg; }
     else{
       el.style.backgroundColor=bg; el.style.color=fgFor(bg);
-      el.textContent=(t.glyph||(t.name||"").trim().charAt(0)||"＋");
+      var gt=(t.glyph||(t.name||"").trim().charAt(0)||"＋"),n=Array.from(gt).length;
+      var latin=/^[\x20-\x7E]+$/.test(gt)&&gt.indexOf(" ")<0,one=latin?n<=9:n<=4,w=latin?0.62:1;
+      var k=one?Math.min(0.52,0.86/(n*w)):Math.min(0.30,0.86/Math.ceil(n/2));
+      var g=document.createElement("span");g.className="g";g.textContent=gt;
+      g.style.fontSize="calc(var(--s) * "+k.toFixed(3)+")";g.style.whiteSpace=one?"nowrap":"normal";
+      el.appendChild(g);
     }
   }
 
@@ -205,6 +223,27 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
     $("#hint").textContent=editMode?"아이콘을 누르면 이름·주소·모양을 바꾸거나 순서를 옮길 수 있어요.":"아이콘을 누르면 해당 사이트가 열립니다. 위의 이름을 눌러 바꿀 수 있어요.";
     var eb=$("#editBtn");eb.textContent=editMode?"완료":"편집";eb.setAttribute("aria-pressed",editMode?"true":"false");
     var ti=$("#title");if(document.activeElement!==ti)ti.value=st.title;
+    applyBoard();
+  }
+  function applyBoard(){
+    var b=$("#board"),c=/^#[0-9a-fA-F]{6}$/.test(st.areaBg||"")?st.areaBg:"";
+    if(c){
+      var dark=fgFor(c)==="#FFFFFF";
+      b.style.background=c;b.style.setProperty("--bfg",dark?"#F2F5FA":"#18202C");b.style.setProperty("--bmuted",dark?"rgba(242,245,250,.72)":"rgba(24,32,44,.66)");
+    }else{b.style.background="";b.style.removeProperty("--bfg");b.style.removeProperty("--bmuted")}
+    $("#bgrow").hidden=!editMode;
+    var cur=c.toUpperCase();
+    document.querySelectorAll("#bgsw .sw").forEach(function(x){x.setAttribute("aria-pressed",x.dataset.c.toUpperCase()===cur?"true":"false")});
+    $("#bgColor").value=(c||"#d3e0f5").toLowerCase();
+  }
+  function buildArea(){
+    var box=$("#bgsw");box.textContent="";
+    AREA.forEach(function(c){
+      var b=document.createElement("button");b.type="button";b.className="sw";b.style.background=c;b.dataset.c=c;b.setAttribute("aria-label","배경색 "+c);
+      b.addEventListener("click",function(){st.areaBg=c;lsSave();applyBoard()});box.appendChild(b);
+    });
+    $("#bgColor").addEventListener("input",function(e){st.areaBg=e.target.value.toUpperCase();lsSave();applyBoard()});
+    $("#bgReset").addEventListener("click",function(){st.areaBg="";lsSave();applyBoard()});
   }
 
   /* ---------- 저장 ---------- */
@@ -327,7 +366,7 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
 
   /* ---------- 백업 ---------- */
   function exportBackup(){
-    var blob=new Blob([JSON.stringify({title:st.title,tiles:sorted().map(function(t){var o=fieldsOf(t);o.id=t.id;return o})},null,1)],{type:"application/json"});
+    var blob=new Blob([JSON.stringify({title:st.title,areaBg:st.areaBg||"",tiles:sorted().map(function(t){var o=fieldsOf(t);o.id=t.id;return o})},null,1)],{type:"application/json"});
     var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="북마크-백업.json";
     document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},2000);
     setStatus("백업 파일을 저장했습니다.");
@@ -339,10 +378,10 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
       try{
         var j=JSON.parse(rd.result);
         if(!j||!Array.isArray(j.tiles))throw new Error("bad");
-        st={title:String(j.title||"").slice(0,40),tiles:j.tiles.slice(0,200).map(function(t,i){
+        st={title:String(j.title||"").slice(0,40),areaBg:/^#[0-9a-fA-F]{6}$/.test(j.areaBg||"")?j.areaBg:"",tiles:j.tiles.slice(0,200).map(function(t,i){
           t=t||{};
           return {id:"t"+Date.now().toString(36)+i,name:String(t.name||"").slice(0,30),url:t.url?safeUrl(t.url):"",
-            glyph:String(t.glyph||"").slice(0,2),bg:okColor(t.bg),img:okImg(t.img)?t.img:"",order:i+1};
+            glyph:String(t.glyph||"").slice(0,100),bg:okColor(t.bg),img:okImg(t.img)?t.img:"",order:i+1};
         })};
         lsSave();render();setStatus("백업을 불러왔습니다.");
       }catch(e){setStatus("백업 파일을 읽을 수 없습니다.")}
@@ -355,7 +394,7 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
 
   /* ---------- 시작 ---------- */
   function init(){
-    buildSwatches();lsLoad();render();
+    buildSwatches();buildArea();lsLoad();render();
     setStatus(saveFail?"이 브라우저는 저장을 막고 있어 변경 내용이 사라질 수 있어요.":"이 기기에 저장됩니다.");
   }
   init();

@@ -153,6 +153,7 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
   var $=function(s){return document.querySelector(s)};
   var COLORS=["#1C1C1E","#8E8E93","#2459D6","#0F9D8A","#E5484D","#F59E0B","#8B5CF6","#EC6AA0"];
   var LS="bookmark-launcher-v1";
+  var DEF_URL="https://drcobain99-jpg.github.io/";
   var st={title:"",tiles:[],areaBg:""};
   var AREA=["#D3E0F5","#DDEFE3","#F5DEDE","#E6DEF5","#FFFFFF","#2B3345","#16191F","#0F3D3E","#1E3A8A"];
   var db=null, mode="local", editMode=false, draft=null, delArmed=false, busy=false;
@@ -302,7 +303,7 @@ input[type=color]{width:46px;height:40px;border:1px solid var(--line);border-rad
     if(t){draft={id:t.id,name:t.name||"",url:t.url||"",glyph:t.glyph||"",bg:okColor(t.bg),img:okImg(t.img)?t.img:"",order:t.order||0,isNew:false}}
     else{draft={id:"t"+Date.now().toString(36),name:"",url:"",glyph:"",bg:COLORS[0],img:"",order:0,isNew:true}}
     $("#pTitle").textContent=draft.isNew?"북마크 추가":"북마크 편집";
-    $("#fName").value=draft.name;$("#fUrl").value=draft.url;$("#fGlyph").value=draft.glyph;
+    $("#fName").value=draft.name;$("#fUrl").value=draft.url||DEF_URL;$("#fGlyph").value=draft.glyph;
     refreshEditor();
     $("#overlay").hidden=false;
     setTimeout(function(){$("#fName").focus()},30);
